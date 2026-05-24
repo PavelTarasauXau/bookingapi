@@ -1,0 +1,150 @@
+:root {
+  /* Fonts */
+  --font-heading:
+    "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:
+    "Nunito", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Colors (Light Mode по умолчанию) */
+  --color-bg-body: #fafafa;
+  --color-bg-content: #ffffff;
+  --color-text-primary: #333333;
+  --color-text-heading: #444444;
+  --color-steel: #527c9f;
+  --color-nav-link: #cbd5db;
+  --color-nav-link-hover: #ffffff;
+  --color-link-hover: #428bca;
+  --color-border: #dddddd;
+  --color-border-light: #e3e3e3;
+
+  /* Spacing & Sizing */
+  --spacing-xl: 5rem;
+  --room-img-size: 4rem;
+}
+
+/* Переключатель на Dark Mode (Bootstrap 5 использует атрибут data-bs-theme="dark") */
+[data-bs-theme="dark"] {
+  --color-bg-body: #1a1a1a;
+  --color-bg-content: #2d2d2d;
+  --color-text-primary: #e0e0e0;
+  --color-text-heading: #f0f0f0;
+  --color-border: #404040;
+  --color-border-light: #4a4a4a;
+}
+
+/* Base Styles */
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg-body);
+  color: var(--color-text-primary);
+}
+
+main {
+  padding-top: var(--spacing-xl);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text-heading);
+}
+
+.navbar-brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-link-hover);
+  outline-offset: 2px;
+}
+
+/* Navigation */
+.bg-steel {
+  background-color: var(--color-steel) !important;
+}
+
+.site-header .navbar-nav .nav-link {
+  color: var(--color-nav-link);
+  transition: color 0.2s ease-in-out;
+}
+
+.site-header .navbar-nav .nav-link:hover,
+.site-header .navbar-nav .nav-link:focus {
+  color: var(--color-nav-link-hover);
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 600;
+}
+
+/* Content Sections (Карточки комнат и сайдбар) */
+.content-section {
+  background: var(--color-bg-content);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.content-section:hover {
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+  border-color: var(--color-border-light);
+}
+
+[data-bs-theme="dark"] .content-section {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .content-section:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Элементы карточки комнаты */
+.article-title {
+  color: var(--color-text-heading);
+  transition: color 0.2s ease-in-out;
+}
+
+a.article-title:hover,
+a.article-title:focus {
+  color: var(--color-link-hover);
+}
+
+.article-metadata {
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* Кастомные кнопки (Светлая тема) */
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #527c9f;
+  --bs-btn-border-color: #527c9f;
+  --bs-btn-hover-bg: #466a87;
+  --bs-btn-hover-border-color: #3f6179;
+}
+
+.btn-outline-light {
+  transition: all 0.2s ease;
+}
+
+/* Кастомные кнопки (Темная тема) */
+[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-color: #000;
+  --bs-btn-bg: #8aadc8;
+  --bs-btn-border-color: #8aadc8;
+  --bs-btn-hover-bg: #9fbdd4;
+}
