@@ -16,7 +16,7 @@
       </div>
 
       <h2>
-        <a class="article-title" href="{{ url_for('home') }}"
+        <a class="article-title" href="{{ url_for("get_room", room_id = room.id) }}"
           >{{ room.title }}</a
         >
       </h2>

@@ -148,3 +148,23 @@ a.article-title:focus {
   --bs-btn-border-color: #8aadc8;
   --bs-btn-hover-bg: #9fbdd4;
 }
+
+/*room.html*/
+/* Дополнительные стили для страницы детализации комнаты */
+.display-5 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.05rem;
+}
+
+.bg-body-tertiary {
+  background-color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .bg-body-tertiary {
+  background-color: #333333 !important;
+}
+
+.badge.bg-light {
+  font-family: var(--font-body);
+  font-weight: 500;
+}

@@ -1,0 +1,73 @@
+{% extends "layout.html" %} {% block content %}
+<a class="btn btn-outline-secondary btn-sm mb-4" href="{{ url_for('home') }}">
+  ← Назад к списку комнат
+</a>
+
+<article class="content-section p-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted font-monospace"
+          >Локация ID: #{{ room.id }}</span
+        >
+        <span class="badge bg-success px-3 py-2 fs-6">Доступно для брони</span>
+      </div>
+
+      <h1 class="display-5 fw-bold mb-3 text-heading">{{ room.title }}</h1>
+      <hr class="my-4" style="border-color: var(--color-border-light)" />
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-md-7">
+      <h4 class="mb-3 text-heading">О локации</h4>
+      <p class="text-body-secondary">
+        Прекрасное пространство для продуктивной работы и встреч. Полностью
+        оборудовано всем необходимым для вашего комфорта.
+      </p>
+
+      <div class="mt-4">
+        <h5 class="text-heading mb-3">Что включено:</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-light text-dark border px-3 py-2"
+            >⚡ Высокоскоростной Wi-Fi</span
+          >
+          <span class="badge bg-light text-dark border px-3 py-2"
+            >☕ Чай/Кофе</span
+          >
+          <span class="badge bg-light text-dark border px-3 py-2"
+            >🖥️ Маркерная доска</span
+          >
+          <span class="badge bg-light text-dark border px-3 py-2"
+            >❄️ Кондиционер</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-5 mt-4 mt-md-0">
+      <div class="p-3 rounded border bg-body-tertiary shadow-sm">
+        <h4 class="text-heading mb-3">Информация</h4>
+
+        <div class="mb-3">
+          <span class="text-muted d-block">Вместимость:</span>
+          <strong class="fs-5">👥 до {{ room.capacity }} человек</strong>
+        </div>
+
+        <div class="mb-4">
+          <span class="text-muted d-block">Стоимость:</span>
+          <strong class="fs-3 text-primary">${{ room.price_per_hour }}</strong>
+          <span class="text-muted">/ час</span>
+        </div>
+
+        <button
+          class="btn btn-primary w-100 py-2 fw-bold"
+          onclick="alert('Логика бронирования будет в следующих уроках!')"
+        >
+          Забронировать место
+        </button>
+      </div>
+    </div>
+  </div>
+</article>
+{% endblock content %}
