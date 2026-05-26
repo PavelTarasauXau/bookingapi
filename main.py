@@ -5,6 +5,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from schemas import RoomCreate, RoomResponse
+
 rooms = [
     {"id": 1, "title": "Mini-Room", "capacity": 2, "price_per_hour": 10},
     {"id": 2, "title": "Conference Hall", "capacity": 20, "price_per_hour": 50}
@@ -20,11 +22,23 @@ templates = Jinja2Templates(directory="templates")
 def home(request: Request):
     return templates.TemplateResponse(request, "home.html", {"rooms": rooms, "title": "Home"})
 
-@app.get("/api/rooms")
+@app.get("/api/rooms", response_model=list[RoomResponse])
 def get_rooms():
     return rooms
 
-@app.get("/rooms/{room_id}")
+@app.post("/api/rooms", response_model=RoomResponse, status_code=status.HTTP_201_CREATED)
+def create_room(room: RoomCreate):
+    new_id = max(r["id"] for r in rooms) + 1 if rooms else 1
+    new_room = {
+        "id": new_id,
+        "title": room.title,
+        "capacity": room.capacity,
+        "price_per_hour": room.price_per_hour,
+    }
+    rooms.append(new_room)
+    return new_room
+
+@app.get("/rooms/{room_id}", response_model=RoomResponse)
 def get_room(request: Request, room_id: int):
     for room in rooms:
         if room.get("id") == room_id:
