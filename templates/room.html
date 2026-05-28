@@ -70,4 +70,25 @@
     </div>
   </div>
 </article>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <h4 class="mb-3 text-heading">Отзывы посетителей</h4>
+
+    {% if reviews %} {% for review in reviews %}
+    <div class="card mb-2 bg-body-tertiary border-light-subtle">
+      <div class="card-body py-2 px-3">
+        <strong class="text-primary">{{ review.author }}</strong>
+        <p class="mb-0 mt-1 text-body-secondary" style="font-size: 0.95rem">
+          {{ review.text }}
+        </p>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <p class="text-muted">
+      Отзывов пока нет. Будьте первым, кто оставит отзыв!
+    </p>
+    {% endif %}
+  </div>
+</div>
 {% endblock content %}
