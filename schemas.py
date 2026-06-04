@@ -1,4 +1,19 @@
-from pydantic import BaseModel, ConfigDict, Field
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+class UserBase(BaseModel):
+    username: str = Field(min_length = 1, max_length= 20)
+    email: EmailStr = Field(max_length = 50)
+
+class UserCreate(UserBase):
+    pass
+
+class UserResponse(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id:int
+
 
 class RoomBase(BaseModel):
     title: str = Field(min_length=1, max_length=100)
@@ -13,6 +28,7 @@ class RoomResponse(RoomBase):
 
     id:int
 
+
 class ReviewBase(BaseModel):
     author: str = Field(min_length=1, max_length = 100)
     text: str = Field(min_length=1, max_length=500)
@@ -25,3 +41,28 @@ class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
 
     id:int
+
+class BookingBase(BaseModel):
+    start_time: datetime
+    end_time: datetime
+
+class BookingCreate(BookingBase):
+    room_id: int
+
+    @field_validator("end_time")
+    @classmethod
+    def check_dates(cls, end_time: datetime, info):
+        start_time = info.data.get("start_time")
+        if start_time and end_time <= start_time:
+            raise ValueError("Время окончания бронирования должно быть позже времени начала")
+        if start_time and start_time < datetime.utcnow():
+            raise ValueError("Нельзя забронировать комнату на прошедшее время")
+        return end_time
+
+class BookingResponse(BookingBase):
+    id: int
+    user_id: int
+    room_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
