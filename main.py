@@ -13,8 +13,8 @@ from sqlalchemy.orm import Session
 import models 
 from database import Base, engine, get_db
 from schemas import (
-    RoomCreate, RoomResponse, 
-    ReviewCreate, ReviewResponse, 
+    RoomCreate, RoomResponse, RoomUpdate,
+    ReviewCreate, ReviewResponse, ReviewUpdate,
     UserCreate, UserResponse,
     BookingCreate, BookingResponse
 )
@@ -25,7 +25,6 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/rooms", include_in_schema=False)
@@ -106,7 +105,45 @@ def create_room(room: RoomCreate, db: Annotated[Session, Depends(get_db)]):
     db.commit()
     db.refresh(new_room)
     return new_room
+    
 
+@app.patch("/api/rooms/{room_id}", response_model=RoomResponse, status_code=status.HTTP_200_OK)
+def update_room(room_id: int, room_data: RoomUpdate, db: Annotated[Session, Depends(get_db)]):
+    
+    result = db.execute(select(models.Room).where(models.Room.id == room_id))
+    db_room = result.scalar_one_or_none()
+    
+    if db_room is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Room with ID {room_id} not found"
+        )
+    
+    update_data = room_data.model_dump(exclude_unset=True)
+    
+    for key, value in update_data.items():
+        setattr(db_room, key, value)
+        
+    db.commit()
+    db.refresh(db_room) 
+    
+    return db_room
+
+@app.delete("/api/rooms/{room_id}")
+def delete_room(room_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Room).where(models.Room.id == room_id))
+    item = result.scalar_one_or_none()
+
+    if item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Room with ID {room_id} not found"
+        )
+        
+    db.delete(item)
+    db.commit()
+
+    return {"detail": "Room with ID {room_id} succesfully deleted"}
 
 
 #revies
@@ -142,6 +179,44 @@ def create_review(review: ReviewCreate, db: Annotated[Session, Depends(get_db)])
     db.refresh(new_review)
     return new_review
 
+@app.patch("/api/reviews/{review_id}", response_model=ReviewResponse, status_code=status.HTTP_200_OK)
+def update_review(review_id: int, review: ReviewUpdate, db: Annotated[Session, Depends(get_db)]): # Добавили : int
+    
+    review_result = db.execute(select(models.Review).where(models.Review.id == review_id))
+    db_review = review_result.scalar_one_or_none()
+
+    if not db_review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Review with id: {review_id} not found"
+        )
+    
+    update_data = review.model_dump(exclude_unset=True)
+    
+    for key, value in update_data.items():
+        setattr(db_review, key, value)
+        
+    db.commit()
+    db.refresh(db_review) 
+    
+    return db_review
+
+@app.delete("/api/reviews/{review_id}", status_code=status.HTTP_200_OK)
+def review_delete(review_id: int, db: Annotated[Session, Depends(get_db)]):
+
+    result_review = db.execute(select(models.Review).where(models.Review.id == review_id))
+    db_review = result_review.scalar_one_or_none()
+
+    if not db_review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Review with ID: {review_id} not found"
+        )
+
+    db.delete(db_review)
+    db.commit()
+
+    return {"detail": "Review with ID {review_id} succesfully deleted"}   
 
 #bookings
 @app.post("/api/bookings", response_model=BookingResponse, status_code=status.HTTP_201_CREATED)

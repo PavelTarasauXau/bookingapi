@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 class UserBase(BaseModel):
@@ -23,11 +23,16 @@ class RoomBase(BaseModel):
 class RoomCreate(RoomBase):
     pass
 
+class RoomUpdate(RoomBase):
+    title: Optional[str] = None
+    capacity: Optional[int] = None
+    price_per_hour: Optional[int] = None
+
+
 class RoomResponse(RoomBase):
     model_config = ConfigDict(from_attributes=True)
 
     id:int
-
 
 class ReviewBase(BaseModel):
     author: str = Field(min_length=1, max_length = 100)
@@ -36,6 +41,11 @@ class ReviewBase(BaseModel):
 
 class ReviewCreate(ReviewBase):
     pass
+
+class ReviewUpdate(ReviewBase):
+    author: Optional[str] = None
+    text: Optional[str] = None
+    room_id: Optional[int] = None
 
 class ReviewResponse(ReviewBase):
     model_config = ConfigDict(from_attributes=True)
