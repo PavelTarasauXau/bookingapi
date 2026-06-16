@@ -1,31 +1,46 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+# 1. Обязательно импортируем models целиком, чтобы __init__.py зарегистрировал 
+# все наши асинхронные связи, о которых мы говорили раньше
+import models 
 from database import Base, engine
-import models
 
+# Импорты роутеров
 from api.users import router as users_router
 from api.rooms import router as rooms_router
 from api.reviews import router as reviews_router
 from api.bookings import router as bookings_router
 from api.pages import router as pages_router
+# !!! Убрали импорт templates отсюда, теперь они живут внутри api/pages.py
 
-Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # На старте создаем таблицы (для SQLite/Postgres в асинхронном режиме)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield 
+    # При закрытии корректно тушим пул соединений
+    await engine.dispose()    
 
-app = FastAPI(title="Booking API")
+app = FastAPI(lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
+# Перенаправляем обработчик на локальные шаблоны страниц, используя lazy-import 
+# внутри функции, либо используем async def, чтобы Jinja2 не блокировал поток.
 @app.exception_handler(StarletteHTTPException)
-def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
+async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
     message = exception.detail if exception.detail else "An error occurred."
     if request.url.path.startswith("/api"):
         return JSONResponse(status_code=exception.status_code, content={"detail": message})
+    
+    # Чтобы избежать циклического импорта, вытащим templates прямо из роутера страниц
+    from api.pages import templates
     return templates.TemplateResponse(
         request, 
         "error.html", 
@@ -34,7 +49,7 @@ def general_http_exception_handler(request: Request, exception: StarletteHTTPExc
     )
 
 @app.exception_handler(RequestValidationError)
-def validation_exception_handler(request: Request, exception: RequestValidationError):
+async def validation_exception_handler(request: Request, exception: RequestValidationError):
     if request.url.path.startswith("/api"):
         errors = exception.errors()
         for err in errors:
@@ -45,6 +60,7 @@ def validation_exception_handler(request: Request, exception: RequestValidationE
             content={"detail": errors}
         )
     
+    from api.pages import templates
     return templates.TemplateResponse(
         request, 
         "error.html", 
@@ -52,9 +68,9 @@ def validation_exception_handler(request: Request, exception: RequestValidationE
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
     )
 
+# Подключение роутеров
 app.include_router(users_router)
 app.include_router(rooms_router)
 app.include_router(reviews_router)
 app.include_router(bookings_router)
-
 app.include_router(pages_router)
