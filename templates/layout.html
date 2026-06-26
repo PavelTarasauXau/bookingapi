@@ -41,15 +41,17 @@
           <div class="navbar-nav me-auto">
             <a class="nav-link active" href="{{ url_for('home') }}">Rooms</a>
           </div>
-          <div class="navbar-nav">
-            <a class="btn btn-outline-light me-md-2" href="#">Login</a>
-            <a class="btn btn-light" href="#">Register</a>
+
+          <div class="navbar-nav" id="navAuthSection">
+            <a class="btn btn-outline-light me-md-2" href="/login">Login</a>
+            <a class="btn btn-light" href="/register">Register</a>
           </div>
         </div>
       </nav>
     </header>
 
     <main role="main" class="container mt-5 pt-4">
+      {% block main_layout %}
       <div class="row">
         <div class="col-md-8">{% block content %} {% endblock content %}</div>
 
@@ -69,8 +71,74 @@
           </div>
         </aside>
       </div>
+      {% endblock main_layout %}
     </main>
 
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-body p-4 text-center">
+            <div class="text-success mb-2" style="font-size: 2rem">✓</div>
+            <h5 class="modal-title mb-2" id="successMessage">
+              Действие выполнено!
+            </h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">Ошибка</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 text-center" id="errorMessage">
+            Что-то пошло не так. Попробуйте еще раз.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+      import { getCurrentUser, logout } from "/static/js/auth.js";
+
+      async function updateNavbar() {
+        const authSection = document.getElementById("navAuthSection");
+        const user = await getCurrentUser();
+
+        if (user) {
+          // Если юзер авторизован, убираем Login/Register и рисуем управление профилем
+          authSection.innerHTML = `
+            <a class="nav-link me-3 text-white fw-semibold" href="/bookings">My Bookings</a>
+            <span class="navbar-text me-3 text-light-50">Привет, <strong>${user.username}</strong>!</span>
+            <button class="btn btn-outline-danger btn-sm" id="logoutBtn">Logout</button>
+          `;
+
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", logout);
+        } else {
+          // Если аноним, возвращаем стандартные кнопки
+          authSection.innerHTML = `
+            <a class="btn btn-outline-light me-md-2" href="/login">Login</a>
+            <a class="btn btn-light" href="/register">Register</a>
+          `;
+        }
+      }
+
+      // Запускаем проверку при каждой загрузке страницы
+      document.addEventListener("DOMContentLoaded", updateNavbar);
+    </script>
+
+    {% block scripts %} {% endblock scripts %}
   </body>
 </html>
